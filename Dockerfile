@@ -13,13 +13,13 @@ RUN go mod download
 COPY . ./
 
 # Build application for deployment
-RUN CGO_ENABLED=0 go build -tags=jsoniter -trimpath -ldflags "-s -w" -o /tmp/minion .
+RUN CGO_ENABLED=0 go build -tags=jsoniter -trimpath -ldflags "-s -w" -o /tmp/harvit .
 
 # Compress binary
-RUN upx --best --lzma /tmp/minion
+RUN upx --best --lzma /tmp/harvit
 
 # Create minimal image with just the application
 # gcr.io/distroless/static is perfect for Go app that do not depend on libc
 FROM gcr.io/distroless/static
-COPY --from=builder /tmp/minion /minion
-CMD ["/minion", "serve"]
+COPY --from=builder /tmp/harvit /harvit
+CMD ["/harvit", "serve"]

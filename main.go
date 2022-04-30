@@ -4,24 +4,15 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mgjules/minion/cmd"
+	"github.com/mgjules/harvit/cmd"
 	"github.com/urfave/cli/v2"
 )
 
-// @title        Minion
-// @version      v1.0.0
-// @description  A little minion that can be replicated to create more minions.
-
-// @contact.name   Michaël Giovanni Jules
-// @contact.url    https://mgjules.dev
-// @contact.email  julesmichaelgiovanni@gmail.com
-
-// @license.name  Apache 2.0
-// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
 	app := cli.NewApp()
-	app.Name = "Minion"
-	app.Description = "A little minion that can be replicated to create more minions."
+	app.Name = "Harvit"
+	app.Usage = "harvest the data and crunch it!"
+	app.Description = "Harvit harvests data from different sources (e.g websites, APIs) and transforms it."
 	app.Authors = []*cli.Author{
 		{
 			Name:  "Michaël Giovanni Jules",

@@ -12,7 +12,7 @@ import (
 
 const (
 	binPath     = "./bin"
-	projectName = "minion"
+	projectName = "harvit"
 	ldFlags     = "-s -w"
 	tags        = "jsoniter"
 	opts        = "-trimpath"

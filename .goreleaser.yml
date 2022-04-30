@@ -1,4 +1,4 @@
-project_name: minion
+project_name: harvit
 dist: ./bin
 env:
   - GO111MODULE=on
@@ -8,7 +8,6 @@ before:
     - mage vet
     - mage lint
     - mage test
-    - mage docs 
 builds:
   - env:
       - CGO_ENABLED=0
