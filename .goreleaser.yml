@@ -1,0 +1,43 @@
+project_name: minion
+dist: ./bin
+env:
+  - GO111MODULE=on
+before:
+  hooks:
+    - mage tidy
+    - mage vet
+    - mage lint
+    - mage test
+    - mage docs 
+builds:
+  - env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+    goos:
+      - linux
+      - windows
+      - darwin
+archives:
+  - replacements:
+      darwin: MacOS
+      linux: Linux
+      windows: Windows
+      386: 32-bit
+      amd64: 64-bit
+    files:
+      - LICENSE
+      - README.md
+      - .env.dist
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

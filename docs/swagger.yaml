@@ -1,0 +1,91 @@
+definitions:
+  build.Info:
+    properties:
+      dirty_build:
+        type: boolean
+      go_version:
+        type: string
+      last_commit:
+        type: string
+      revision:
+        type: string
+    type: object
+  health.CheckResult:
+    properties:
+      error:
+        description: Error contains the check error message, if the check failed.
+        type: string
+      status:
+        description: Status is the availability status of a component.
+        type: string
+      timestamp:
+        description: Timestamp holds the time when the check was executed.
+        type: string
+    type: object
+  health.CheckerResult:
+    properties:
+      details:
+        additionalProperties:
+          $ref: '#/definitions/health.CheckResult'
+        description: Details contains health information for all checked components.
+        type: object
+      status:
+        description: Status is the aggregated system availability status.
+        type: string
+    type: object
+info:
+  contact:
+    email: julesmichaelgiovanni@gmail.com
+    name: Michaël Giovanni Jules
+    url: https://mgjules.dev
+  description: A little minion that can be replicated to create more minions.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Minion
+  version: v1.0.0
+paths:
+  /:
+    get:
+      description: checks if server is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/health.CheckerResult'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/health.CheckerResult'
+      summary: Health Check
+      tags:
+      - core
+  /api/minion:
+    get:
+      description: returns the minion's introduction
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: My name is '{name}' and I have a secret key '{key}'.
+          schema:
+            type: string
+      summary: Minion introduction
+      tags:
+      - core
+  /version:
+    get:
+      description: checks the server's version
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/build.Info'
+      summary: Health Check
+      tags:
+      - core
+swagger: "2.0"
