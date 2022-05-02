@@ -87,8 +87,6 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]string) (any, 
 			continue
 		}
 
-		name = strcase.ToSnake(name)
-
 		var parsed any
 		switch d.Type {
 		case plan.DatumTypeText:
@@ -106,6 +104,8 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]string) (any, 
 				parsed = 0.0
 			}
 		}
+
+		name = strcase.ToSnake(name)
 
 		sanitized[name] = parsed
 	}
