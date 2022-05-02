@@ -38,7 +38,7 @@ func (p *Plan) SetDefaults() {
 
 // Datum is a single piece of data.
 type Datum struct {
-	Name     string `yaml:"name" validate:"required,alphanum"`
+	Name     string `yaml:"name" validate:"required,alpha"`
 	Type     string `yaml:"type" validate:"required,oneof=text number decimal"`
 	Selector string `yaml:"selector" validate:"required"`
 }
