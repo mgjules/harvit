@@ -94,15 +94,15 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]string) (any, 
 		case plan.DatumTypeText:
 			parsed = raw
 		case plan.DatumTypeNumber:
-			parsed, err = strconv.ParseInt(raw, base, bitSize)
+			parsed, err = strconv.ParseInt(r, base, bitSize)
 			if err != nil {
-				logger.Log.WarnwContext(ctx, "failed to parse number", "error", err, "raw", raw)
+				logger.Log.WarnwContext(ctx, "failed to parse number", "error", err, "raw", r)
 				parsed = 0
 			}
 		case plan.DatumTypeDecimal:
-			parsed, err = strconv.ParseFloat(raw, bitSize)
+			parsed, err = strconv.ParseFloat(r, bitSize)
 			if err != nil {
-				logger.Log.WarnwContext(ctx, "failed to parse decimal", "error", err, "darawta", raw)
+				logger.Log.WarnwContext(ctx, "failed to parse decimal", "error", err, "raw", r)
 				parsed = 0.0
 			}
 		}
