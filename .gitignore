@@ -20,3 +20,5 @@ bin/*
 
 # Environment variable
 .env
+
+plan.yml

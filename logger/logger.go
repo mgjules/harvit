@@ -8,6 +8,9 @@ import (
 	"go.uber.org/zap"
 )
 
+// Log is a global instance of Logger
+var Log *Logger
+
 // Logger is a simple wrapper around zap.SugaredLogger.
 type Logger struct {
 	*otelzap.SugaredLogger
@@ -15,6 +18,10 @@ type Logger struct {
 
 // New creates a new Logger.
 func New(prod bool) (*Logger, error) {
+	if Log != nil {
+		return Log, nil
+	}
+
 	var (
 		logger *zap.Logger
 		err    error
@@ -31,7 +38,9 @@ func New(prod bool) (*Logger, error) {
 
 	otellogger := otelzap.New(logger)
 
-	return &Logger{otellogger.Sugar()}, nil
+	Log = &Logger{otellogger.Sugar()}
+
+	return Log, nil
 }
 
 // Writer returns the logger's io.Writer.
