@@ -12,13 +12,14 @@ import (
 
 // Datum types.
 const (
-	DatumTypeText        = "text"
-	DatumTypeNumber      = "number"
-	DatumTypeDecimal     = "decimal"
-	DatumTypeDateTime    = "datetime"
-	DatumTypeTextList    = "textList"
-	DatumTypeNumberList  = "numberList"
-	DatumTypeDecimalList = "decimalList"
+	DatumTypeText         = "text"
+	DatumTypeNumber       = "number"
+	DatumTypeDecimal      = "decimal"
+	DatumTypeDateTime     = "datetime"
+	DatumTypeTextList     = "textList"
+	DatumTypeNumberList   = "numberList"
+	DatumTypeDecimalList  = "decimalList"
+	DatumTypeDateTimeList = "datetimeList"
 )
 
 // Plan defines the parameters for harvesting.
@@ -37,7 +38,7 @@ func (p *Plan) SetDefaults() {
 // Datum is a single piece of data.
 type Datum struct {
 	Name     string `yaml:"name" validate:"required,alpha"`
-	Type     string `yaml:"type" validate:"required,oneof=text number decimal datetime textList numberList decimalList"`
+	Type     string `yaml:"type" validate:"required,oneof=text number decimal datetime textList numberList decimalList datetimeList"` //nolint:revive
 	Selector string `yaml:"selector" validate:"required"`
 	Regex    string `yaml:"regex"`
 	Format   string `yaml:"format"`

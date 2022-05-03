@@ -27,7 +27,7 @@ const (
 )
 
 // Harvest extracts data from a source using a plan.
-func Harvest(p *plan.Plan) (map[string]string, error) {
+func Harvest(p *plan.Plan) (map[string]any, error) {
 	parsed, err := url.Parse(p.Source)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse source URL: %w", err)
@@ -44,32 +44,50 @@ func Harvest(p *plan.Plan) (map[string]string, error) {
 		logger.Log.Debugw("visiting...", "url", r.URL.String())
 	})
 
-	harvested := make(map[string]string)
+	harvested := make(map[string]any)
 
 	for i := range p.Data {
 		d := p.Data[i]
+
+		switch d.Type {
+		case plan.DatumTypeTextList,
+			plan.DatumTypeNumberList,
+			plan.DatumTypeDecimalList,
+			plan.DatumTypeDateTimeList:
+			harvested[d.Name] = make([]string, 0)
+		}
+
 		c.OnHTML(d.Selector, func(e *colly.HTMLElement) {
-			switch d.Type {
-			case plan.DatumTypeText, plan.DatumTypeNumber, plan.DatumTypeDecimal, plan.DatumTypeDateTime:
-				text := e.Text
-				if d.Regex != "" {
-					re, err := regexp.Compile(d.Regex)
-					if err != nil {
-						logger.Log.Warnw("failed to compile regex", "name", d.Name, "regex", d.Regex, "error", err)
+			text := e.Text
 
-						return
-					}
+			if d.Regex != "" {
+				re, err := regexp.Compile(d.Regex)
+				if err != nil {
+					logger.Log.Warnw("failed to compile regex", "name", d.Name, "regex", d.Regex, "error", err)
 
-					matches := re.FindStringSubmatch(text)
-
-					logger.Log.Debugw(
-						"regex matches", "name", d.Name, "text", text, "regex", d.Regex, "matches", matches,
-					)
-
-					text = matches[1]
+					return
 				}
 
+				matches := re.FindStringSubmatch(text)
+
+				logger.Log.Debugw(
+					"regex matches", "name", d.Name, "text", text, "regex", d.Regex, "matches", matches,
+				)
+
+				text = matches[1]
+			}
+
+			switch d.Type {
+			case plan.DatumTypeText,
+				plan.DatumTypeNumber,
+				plan.DatumTypeDecimal,
+				plan.DatumTypeDateTime:
 				harvested[d.Name] = text
+			case plan.DatumTypeTextList,
+				plan.DatumTypeNumberList,
+				plan.DatumTypeDecimalList,
+				plan.DatumTypeDateTimeList:
+				harvested[d.Name] = append(harvested[d.Name].([]string), text) //nolint:forcetypeassert
 			}
 		})
 	}
@@ -82,12 +100,10 @@ func Harvest(p *plan.Plan) (map[string]string, error) {
 }
 
 // Transform transforms any harvested data.
-func Transform(ctx context.Context, p *plan.Plan, data map[string]string) (any, error) {
+func Transform(ctx context.Context, p *plan.Plan, data map[string]any) (any, error) {
 	var err error
 
-	conform := modifiers.New()
-
-	sanitized := make(map[string]any)
+	sanitizeds := make(map[string]any)
 
 	for name, raw := range data {
 		d, found := lo.Find(p.Data, func(d plan.Datum) bool {
@@ -98,53 +114,42 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]string) (any, 
 			continue
 		}
 
-		tags := []string{"trim"}
-		switch d.Type {
-		case plan.DatumTypeNumber, plan.DatumTypeDecimal:
-			tags = append(tags, "strip_alpha", "strip_alpha_unicode", "strip_punctuation")
-		}
-
-		tags = lo.Uniq(tags)
-
-		r := raw
-		if err = conform.Field(ctx, &r, strings.Join(tags, ",")); err != nil {
-			logger.Log.ErrorwContext(ctx, "failed to conform field", "error", err, "raw", r, "tags", tags)
-
-			continue
-		}
-
-		var parsed any
-		switch d.Type {
-		case plan.DatumTypeText:
-			parsed = raw
-		case plan.DatumTypeNumber:
-			parsed, err = strconv.ParseInt(r, base, bitSize)
-			if err != nil {
-				logger.Log.WarnwContext(ctx, "failed to parse number", "error", err, "raw", r)
-				parsed = 0
-			}
-		case plan.DatumTypeDecimal:
-			parsed, err = strconv.ParseFloat(r, bitSize)
-			if err != nil {
-				logger.Log.WarnwContext(ctx, "failed to parse decimal", "error", err, "raw", r)
-				parsed = 0.0
-			}
-		case plan.DatumTypeDateTime:
-			if d.Format == "" {
-				parsed = carbon.Parse(r).ToIso8601String()
-			} else {
-				parsed = carbon.ParseByFormat(r, d.Format).ToIso8601String()
-			}
-		}
-
 		name = strcase.ToSnake(name)
 
-		sanitized[name] = parsed
+		switch d.Type {
+		case plan.DatumTypeText,
+			plan.DatumTypeNumber,
+			plan.DatumTypeDecimal,
+			plan.DatumTypeDateTime:
+			val, ok := raw.(string)
+			if !ok {
+				logger.Log.WarnwContext(ctx, "failed to cast value to string", "name", name, "raw", raw)
+
+				continue
+			}
+
+			sanitizeds[name] = Sanitize(ctx, &d, val)
+		case plan.DatumTypeTextList,
+			plan.DatumTypeNumberList,
+			plan.DatumTypeDecimalList,
+			plan.DatumTypeDateTimeList:
+			val, ok := raw.([]string)
+			if !ok {
+				logger.Log.WarnwContext(ctx, "failed to cast to []string", "name", name, "type", d.Type, "raw", raw) //nolint:revive
+
+				continue
+			}
+
+			sanitizeds[name] = make([]any, 0)
+			for i := range val {
+				sanitizeds[name] = append(sanitizeds[name].([]any), Sanitize(ctx, &d, val[i])) //nolint:forcetypeassert
+			}
+		}
 	}
 
-	logger.Log.Debugw("sanitized data", "sanitized", sanitized)
+	logger.Log.Debugw("sanitized data", "sanitized", sanitizeds)
 
-	d, err := json.Marshal(sanitized)
+	d, err := json.Marshal(sanitizeds)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode sanitized data from map: %w", err)
 	}
@@ -161,6 +166,53 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]string) (any, 
 	}
 
 	return transformed, nil
+}
+
+// Sanitize sanitizes a value according to a datum.
+func Sanitize(ctx context.Context, d *plan.Datum, val string) any {
+	var err error
+
+	conform := modifiers.New()
+
+	tags := []string{"trim"}
+	switch d.Type {
+	case plan.DatumTypeNumber, plan.DatumTypeDecimal:
+		tags = append(tags, "strip_alpha", "strip_alpha_unicode", "strip_punctuation")
+	}
+
+	tags = lo.Uniq(tags)
+
+	if err = conform.Field(ctx, &val, strings.Join(tags, ",")); err != nil {
+		logger.Log.ErrorwContext(ctx, "failed to conform field", "error", err, "val", val, "tags", tags)
+
+		return val
+	}
+
+	var sanitized any
+	switch d.Type {
+	case plan.DatumTypeText, plan.DatumTypeTextList:
+		sanitized = val
+	case plan.DatumTypeNumber, plan.DatumTypeNumberList:
+		sanitized, err = strconv.ParseInt(val, base, bitSize)
+		if err != nil {
+			logger.Log.WarnwContext(ctx, "failed to parse number", "error", err, "val", val)
+			sanitized = 0
+		}
+	case plan.DatumTypeDecimal, plan.DatumTypeDecimalList:
+		sanitized, err = strconv.ParseFloat(val, bitSize)
+		if err != nil {
+			logger.Log.WarnwContext(ctx, "failed to parse decimal", "error", err, "val", val)
+			sanitized = 0.0
+		}
+	case plan.DatumTypeDateTime, plan.DatumTypeDateTimeList:
+		if d.Format == "" {
+			sanitized = carbon.Parse(val).ToIso8601String()
+		} else {
+			sanitized = carbon.ParseByFormat(val, d.Format).ToIso8601String()
+		}
+	}
+
+	return sanitized
 }
 
 func dynamicStructBuilder(p *plan.Plan) (dynamicstruct.Builder, error) {
@@ -184,6 +236,14 @@ func dynamicStructBuilder(p *plan.Plan) (dynamicstruct.Builder, error) {
 			typ = 0.0
 		case plan.DatumTypeDateTime:
 			typ = time.Time{}
+		case plan.DatumTypeTextList:
+			typ = []string{}
+		case plan.DatumTypeNumberList:
+			typ = []int{}
+		case plan.DatumTypeDecimalList:
+			typ = []float64{}
+		case plan.DatumTypeDateTimeList:
+			typ = []time.Time{}
 		}
 
 		name := strcase.ToCamel(d.Name)
