@@ -3,6 +3,8 @@ package harvit
 import (
 	"context"
 	"fmt"
+	"net"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -36,6 +38,19 @@ func Harvest(p *plan.Plan) (map[string]any, error) {
 	c := colly.NewCollector(
 		colly.AllowedDomains(parsed.Host),
 	)
+
+	c.WithTransport(&http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   30 * time.Second, //nolint:revive
+			KeepAlive: 30 * time.Second, //nolint:revive
+			DualStack: true,
+		}).DialContext,
+		MaxIdleConns:          100,              //nolint:revive
+		IdleConnTimeout:       90 * time.Second, //nolint:revive
+		TLSHandshakeTimeout:   10 * time.Second, //nolint:revive
+		ExpectContinueTimeout: 1 * time.Second,
+	})
 
 	extensions.RandomUserAgent(c)
 	extensions.Referer(c)
