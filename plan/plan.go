@@ -5,16 +5,20 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 	"github.com/mgjules/harvit/logger"
 	"gopkg.in/yaml.v2"
 )
 
 // Datum types.
 const (
-	DatumTypeText    = "text"
-	DatumTypeNumber  = "number"
-	DatumTypeDecimal = "decimal"
+	DatumTypeText        = "text"
+	DatumTypeNumber      = "number"
+	DatumTypeDecimal     = "decimal"
+	DatumTypeDateTime    = "datetime"
+	DatumTypeTextList    = "textList"
+	DatumTypeNumberList  = "numberList"
+	DatumTypeDecimalList = "decimalList"
 )
 
 // Plan defines the parameters for harvesting.
@@ -39,9 +43,10 @@ func (p *Plan) SetDefaults() {
 // Datum is a single piece of data.
 type Datum struct {
 	Name     string `yaml:"name" validate:"required,alpha"`
-	Type     string `yaml:"type" validate:"required,oneof=text number decimal"`
+	Type     string `yaml:"type" validate:"required,oneof=text number decimal datetime textList numberList decimalList"`
 	Selector string `yaml:"selector" validate:"required"`
 	Regex    string `yaml:"regex"`
+	Format   string `yaml:"format"`
 }
 
 // SetDefaults sets the default values for a datum.

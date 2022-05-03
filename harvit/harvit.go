@@ -6,11 +6,13 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	dynamicstruct "github.com/Ompluscator/dynamic-struct"
 	"github.com/go-playground/mold/v4/modifiers"
 	"github.com/gocolly/colly"
 	"github.com/gocolly/colly/extensions"
+	"github.com/golang-module/carbon"
 	"github.com/iancoleman/strcase"
 	"github.com/mgjules/harvit/json"
 	"github.com/mgjules/harvit/logger"
@@ -42,7 +44,7 @@ func Harvest(p *plan.Plan) (map[string]string, error) {
 		d := p.Data[i]
 		c.OnHTML(d.Selector, func(e *colly.HTMLElement) {
 			switch d.Type {
-			case plan.DatumTypeText, plan.DatumTypeNumber, plan.DatumTypeDecimal:
+			case plan.DatumTypeText, plan.DatumTypeNumber, plan.DatumTypeDecimal, plan.DatumTypeDateTime:
 				text := e.Text
 				if d.Regex != "" {
 					re, err := regexp.Compile(d.Regex)
@@ -122,6 +124,12 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]string) (any, 
 				logger.Log.WarnwContext(ctx, "failed to parse decimal", "error", err, "raw", r)
 				parsed = 0.0
 			}
+		case plan.DatumTypeDateTime:
+			if d.Format == "" {
+				parsed = carbon.Parse(r).ToIso8601String()
+			} else {
+				parsed = carbon.ParseByFormat(r, d.Format).ToIso8601String()
+			}
 		}
 
 		name = strcase.ToSnake(name)
@@ -169,6 +177,8 @@ func dynamicStructBuilder(p *plan.Plan) (dynamicstruct.Builder, error) {
 			typ = 0
 		case plan.DatumTypeDecimal:
 			typ = 0.0
+		case plan.DatumTypeDateTime:
+			typ = time.Time{}
 		}
 
 		name := strcase.ToCamel(d.Name)
