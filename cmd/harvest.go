@@ -10,8 +10,9 @@ import (
 )
 
 var harvest = &cli.Command{
-	Name:  "harvest",
-	Usage: "Let's harvest some data!",
+	Name:      "harvest",
+	Usage:     "Let's harvest some data!",
+	UsageText: "harvit harvest [command options] [plan file]",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "prod",
@@ -19,19 +20,17 @@ var harvest = &cli.Command{
 			Usage:   "whether running in PROD or DEBUG mode",
 			EnvVars: []string{"HARVIT_PROD"},
 		},
-		&cli.StringFlag{
-			Name:    "plan-file",
-			Value:   "plan.yml",
-			Usage:   "filepath of the plan file",
-			EnvVars: []string{"HARVIT_PLAN_FILE"},
-		},
 	},
 	Action: func(c *cli.Context) error {
 		prod := c.Bool("prod")
-		planFile := c.String("plan-file")
 
 		if _, err := logger.New(prod); err != nil {
 			return fmt.Errorf("failed to create logger: %w", err)
+		}
+
+		planFile := c.Args().Get(0)
+		if planFile == "" {
+			planFile = "plan.yml"
 		}
 
 		plan, err := plan.Load(planFile)
