@@ -3,6 +3,7 @@ package harvit
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -42,7 +43,25 @@ func Harvest(p *plan.Plan) (map[string]string, error) {
 		c.OnHTML(d.Selector, func(e *colly.HTMLElement) {
 			switch d.Type {
 			case plan.DatumTypeText, plan.DatumTypeNumber, plan.DatumTypeDecimal:
-				harvested[d.Name] = e.Text
+				text := e.Text
+				if d.Regex != "" {
+					re, err := regexp.Compile(d.Regex)
+					if err != nil {
+						logger.Log.Warnw("failed to compile regex", "name", d.Name, "regex", d.Regex, "error", err)
+
+						return
+					}
+
+					matches := re.FindStringSubmatch(text)
+
+					logger.Log.Debugw(
+						"regex matches", "name", d.Name, "text", text, "regex", d.Regex, "matches", matches,
+					)
+
+					text = matches[1]
+				}
+
+				harvested[d.Name] = text
 			}
 		})
 	}
