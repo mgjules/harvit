@@ -12,7 +12,7 @@ import (
 var harvest = &cli.Command{
 	Name:      "harvest",
 	Usage:     "Let's harvest some data!",
-	UsageText: "harvit harvest [command options] [plan file]",
+	UsageText: "harvit harvest [command options] plan",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
 			Name:    "prod",
