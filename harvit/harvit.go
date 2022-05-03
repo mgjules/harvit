@@ -3,6 +3,7 @@ package harvit
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -27,8 +28,13 @@ const (
 
 // Harvest extracts data from a source using a plan.
 func Harvest(p *plan.Plan) (map[string]string, error) {
+	parsed, err := url.Parse(p.Source)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse source URL: %w", err)
+	}
+
 	c := colly.NewCollector(
-		colly.AllowedDomains(p.Domain),
+		colly.AllowedDomains(parsed.Host),
 	)
 
 	extensions.RandomUserAgent(c)
@@ -68,8 +74,7 @@ func Harvest(p *plan.Plan) (map[string]string, error) {
 		})
 	}
 
-	url := p.Scheme + "://" + p.Domain + p.Path
-	if err := c.Visit(url); err != nil {
+	if err := c.Visit(p.Source); err != nil {
 		return nil, fmt.Errorf("failed to visit site: %w", err)
 	}
 

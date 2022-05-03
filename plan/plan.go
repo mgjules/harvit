@@ -23,18 +23,12 @@ const (
 
 // Plan defines the parameters for harvesting.
 type Plan struct {
-	Scheme string  `yaml:"scheme" validate:"required,alpha"`
-	Domain string  `yaml:"domain" validate:"required,fqdn"`
-	Path   string  `yaml:"path" validate:"required"`
+	Source string  `yaml:"source" validate:"required,url"`
 	Data   []Datum `yaml:",flow" validate:"required,dive"`
 }
 
 // SetDefaults sets the default values for the plan.
 func (p *Plan) SetDefaults() {
-	if p.Scheme == "" {
-		p.Scheme = "http"
-	}
-
 	for i := range p.Data {
 		p.Data[i].SetDefaults()
 	}
