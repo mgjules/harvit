@@ -44,6 +44,10 @@ func Harvest(p *plan.Plan) (map[string]any, error) {
 		logger.Log.Debugw("visiting...", "url", r.URL.String())
 	})
 
+	c.OnError(func(r *colly.Response, err error) {
+		logger.Log.Errorw("failed to visit", "url", r.Request.URL.String(), "err", err)
+	})
+
 	harvested := make(map[string]any)
 
 	for i := range p.Data {
