@@ -25,30 +25,33 @@ Harvit harvests data from different sources (e.g websites, APIs), transforms and
 
 ## Usage
 
-```sh
+```shell
 $ ./harvit
-  NAME:
-    Harvit - Harvest It!
+```
 
-  USAGE:
-    harvit [global options] command [command options] [arguments...]
+```
+NAME:
+  Harvit - Harvest It!
 
-  DESCRIPTION:
-    Harvit harvests data from different sources (e.g websites, APIs) and transforms it.
+USAGE:
+  harvit [global options] command [command options] [arguments...]
 
-  AUTHOR:
-    Michaël Giovanni Jules <julesmichaelgiovanni@gmail.com>
+DESCRIPTION:
+  Harvit harvests data from different sources (e.g websites, APIs) and transforms it.
 
-  COMMANDS:
-    harvest     Let's harvest some data!
-    version, v  Shows the version
-    help, h     Shows a list of commands or help for one command
+AUTHOR:
+  Michaël Giovanni Jules <julesmichaelgiovanni@gmail.com>
 
-  GLOBAL OPTIONS:
-    --help, -h  show help (default: false)
+COMMANDS:
+  harvest     Let's harvest some data!
+  version, v  Shows the version
+  help, h     Shows a list of commands or help for one command
 
-  COPYRIGHT:
-    (c) 2022 Michaël Giovanni Jules
+GLOBAL OPTIONS:
+  --help, -h  show help (default: false)
+
+COPYRIGHT:
+  (c) 2022 Michaël Giovanni Jules
 ```
 
 
