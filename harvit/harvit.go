@@ -100,13 +100,13 @@ func Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error) {
 }
 
 // Transform transforms any harvested data.
-func Transform(ctx context.Context, p *plan.Plan, data map[string]any) (any, error) {
+func Transform(ctx context.Context, fields []plan.Field, data map[string]any) (any, error) {
 	var err error
 
 	sanitizeds := make(map[string]any)
 
 	for name, raw := range data {
-		d, found := lo.Find(p.Fields, func(d plan.Field) bool {
+		field, found := lo.Find(fields, func(d plan.Field) bool {
 			return d.Name == name
 		})
 
@@ -118,11 +118,14 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]any) (any, err
 
 		switch r := raw.(type) {
 		case string:
-			sanitizeds[name] = Sanitize(ctx, &d, r)
+			sanitizeds[name] = Sanitize(ctx, &field, r)
 		case []string:
 			sanitizeds[name] = make([]any, 0)
 			for i := range r {
-				sanitizeds[name] = append(sanitizeds[name].([]any), Sanitize(ctx, &d, r[i])) //nolint:forcetypeassert
+				sanitizeds[name] = append( //nolint:forcetypeassert
+					sanitizeds[name].([]any),
+					Sanitize(ctx, &field, r[i]),
+				)
 			}
 		}
 	}
@@ -134,7 +137,7 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]any) (any, err
 		return nil, fmt.Errorf("failed to encode sanitized data from map: %w", err)
 	}
 
-	builder, err := dynamicStructBuilder(p)
+	builder, err := dynamicStructBuilder(fields)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build dynamic struct: %w", err)
 	}
@@ -149,14 +152,14 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]any) (any, err
 }
 
 // Sanitize sanitizes a value according to a datum.
-func Sanitize(ctx context.Context, d *plan.Field, val string) any {
+func Sanitize(ctx context.Context, field *plan.Field, val string) any {
 	var err error
 
-	if d.Regex != "" {
+	if field.Regex != "" {
 		var re *regexp.Regexp
-		re, err = regexp.Compile(d.Regex)
+		re, err = regexp.Compile(field.Regex)
 		if err != nil {
-			logger.Log.Warnw("failed to compile regex", "name", d.Name, "regex", d.Regex, "error", err)
+			logger.Log.Warnw("failed to compile regex", "name", field.Name, "regex", field.Regex, "error", err)
 
 			return val
 		}
@@ -164,7 +167,7 @@ func Sanitize(ctx context.Context, d *plan.Field, val string) any {
 		matches := re.FindStringSubmatch(val)
 
 		logger.Log.Debugw(
-			"regex matches", "name", d.Name, "val", val, "regex", d.Regex, "matches", matches,
+			"regex matches", "name", field.Name, "val", val, "regex", field.Regex, "matches", matches,
 		)
 
 		val = matches[1]
@@ -173,7 +176,7 @@ func Sanitize(ctx context.Context, d *plan.Field, val string) any {
 	conform := modifiers.New()
 
 	tags := []string{"trim"}
-	switch d.Type {
+	switch field.Type {
 	case plan.FieldTypeNumber, plan.FieldTypeDecimal:
 		tags = append(tags, "strip_alpha", "strip_alpha_unicode", "strip_punctuation")
 	}
@@ -187,7 +190,7 @@ func Sanitize(ctx context.Context, d *plan.Field, val string) any {
 	}
 
 	var sanitized any
-	switch d.Type {
+	switch field.Type {
 	case plan.FieldTypeText, plan.FieldTypeTextList:
 		sanitized = val
 	case plan.FieldTypeNumber, plan.FieldTypeNumberList:
@@ -203,29 +206,29 @@ func Sanitize(ctx context.Context, d *plan.Field, val string) any {
 			sanitized = 0.0
 		}
 	case plan.FieldTypeDateTime, plan.FieldTypeDateTimeList:
-		if d.Format == "" {
+		if field.Format == "" {
 			sanitized = carbon.Parse(val).ToIso8601String()
 		} else {
-			sanitized = carbon.ParseByFormat(val, d.Format).ToIso8601String()
+			sanitized = carbon.ParseByFormat(val, field.Format).ToIso8601String()
 		}
 	}
 
 	return sanitized
 }
 
-func dynamicStructBuilder(p *plan.Plan) (dynamicstruct.Builder, error) {
+func dynamicStructBuilder(fields []plan.Field) (dynamicstruct.Builder, error) {
 	builder := dynamicstruct.NewStruct()
 
-	for i := range p.Fields {
-		d := p.Fields[i]
+	for i := range fields {
+		field := fields[i]
 
 		var (
 			typ  interface{}
 			tags = map[string][]string{
-				"json": {strcase.ToSnake(d.Name)},
+				"json": {strcase.ToSnake(field.Name)},
 			}
 		)
-		switch d.Type {
+		switch field.Type {
 		case plan.FieldTypeText:
 			typ = ""
 		case plan.FieldTypeNumber:
@@ -244,7 +247,7 @@ func dynamicStructBuilder(p *plan.Plan) (dynamicstruct.Builder, error) {
 			typ = []time.Time{}
 		}
 
-		name := strcase.ToCamel(d.Name)
+		name := strcase.ToCamel(field.Name)
 
 		var tt []string
 		for k, v := range tags {
