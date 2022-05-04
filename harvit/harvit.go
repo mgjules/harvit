@@ -3,8 +3,6 @@ package harvit
 import (
 	"context"
 	"fmt"
-	"net"
-	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -12,9 +10,10 @@ import (
 	"time"
 
 	dynamicstruct "github.com/Ompluscator/dynamic-struct"
+	"github.com/chromedp/cdproto/cdp"
+	"github.com/chromedp/cdproto/runtime"
+	"github.com/chromedp/chromedp"
 	"github.com/go-playground/mold/v4/modifiers"
-	"github.com/gocolly/colly"
-	"github.com/gocolly/colly/extensions"
 	"github.com/golang-module/carbon"
 	"github.com/iancoleman/strcase"
 	"github.com/mgjules/harvit/json"
@@ -30,70 +29,55 @@ const (
 
 // Harvest extracts data from a source using a plan.
 func Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error) {
-	parsed, err := url.Parse(p.Source)
-	if err != nil {
+	if _, err := url.Parse(p.Source); err != nil {
 		return nil, fmt.Errorf("failed to parse source URL: %w", err)
 	}
 
-	c := colly.NewCollector(
-		colly.AllowedDomains(parsed.Host),
-	)
-
-	c.WithTransport(&http.Transport{
-		Proxy: http.ProxyFromEnvironment,
-		DialContext: (&net.Dialer{
-			Timeout:   30 * time.Second,
-			KeepAlive: 30 * time.Second,
-			DualStack: true,
-		}).DialContext,
-		MaxIdleConns:          100,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
-	})
-
-	extensions.RandomUserAgent(c)
-	extensions.Referer(c)
-
-	c.OnRequest(func(r *colly.Request) {
-		logger.Log.Debugw("visiting...", "url", r.URL.String())
-	})
-
-	c.OnError(func(r *colly.Response, err error) {
-		logger.Log.ErrorwContext(ctx, "failed to visit", "url", r.Request.URL.String(), "err", err)
-	})
+	// create context
+	ctx, cancel := chromedp.NewContext(ctx)
+	defer cancel()
 
 	harvested := make(map[string]any)
 
-	for i := range p.Fields {
-		d := p.Fields[i]
-
-		switch d.Type {
-		case plan.FieldTypeTextList,
-			plan.FieldTypeNumberList,
-			plan.FieldTypeDecimalList,
-			plan.FieldTypeDateTimeList:
-			harvested[d.Name] = make([]string, 0)
-		}
-
-		c.OnHTML(d.Selector, func(e *colly.HTMLElement) {
-			switch d.Type {
-			case plan.FieldTypeText,
-				plan.FieldTypeNumber,
-				plan.FieldTypeDecimal,
-				plan.FieldTypeDateTime:
-				harvested[d.Name] = e.Text
-			case plan.FieldTypeTextList,
-				plan.FieldTypeNumberList,
-				plan.FieldTypeDecimalList,
-				plan.FieldTypeDateTimeList:
-				harvested[d.Name] = append(harvested[d.Name].([]string), e.Text) //nolint:forcetypeassert
-			}
-		})
+	actions := []chromedp.Action{
+		chromedp.Navigate(p.Source),
 	}
 
-	if err := c.Visit(p.Source); err != nil {
-		return nil, fmt.Errorf("failed to visit site: %w", err)
+	for i := range p.Fields {
+		field := p.Fields[i]
+
+		actions = append(
+			actions,
+			chromedp.QueryAfter(field.Selector,
+				func(ctx context.Context, eci runtime.ExecutionContextID, nodes ...*cdp.Node) error {
+					logger.Log.Debugw("querying", "name", field.Name, "selector", field.Selector, "nodes", nodes)
+
+					if len(nodes) > 1 {
+						harvested[field.Name] = make([]string, 0)
+						for i := range nodes {
+							if nodes[i].ChildNodeCount == 0 || nodes[i].Children[0].NodeType != cdp.NodeTypeText {
+								continue
+							}
+
+							harvested[field.Name] = append( //nolint:forcetypeassert
+								harvested[field.Name].([]string),
+								nodes[i].Children[0].NodeValue,
+							)
+						}
+					} else if len(nodes) == 1 &&
+						nodes[0].ChildNodeCount > 0 ||
+						nodes[0].Children[0].NodeType != cdp.NodeTypeText {
+						harvested[field.Name] = nodes[0].Children[0].NodeValue
+					}
+
+					return nil
+				},
+			),
+		)
+	}
+
+	if err := chromedp.Run(ctx, actions...); err != nil {
+		return nil, fmt.Errorf("failed to navigate to source: %w", err)
 	}
 
 	return harvested, nil
