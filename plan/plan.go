@@ -12,31 +12,31 @@ import (
 
 // Datum types.
 const (
-	DatumTypeText         = "text"
-	DatumTypeNumber       = "number"
-	DatumTypeDecimal      = "decimal"
-	DatumTypeDateTime     = "datetime"
-	DatumTypeTextList     = "textList"
-	DatumTypeNumberList   = "numberList"
-	DatumTypeDecimalList  = "decimalList"
-	DatumTypeDateTimeList = "datetimeList"
+	FieldTypeText         = "text"
+	FieldTypeNumber       = "number"
+	FieldTypeDecimal      = "decimal"
+	FieldTypeDateTime     = "datetime"
+	FieldTypeTextList     = "textList"
+	FieldTypeNumberList   = "numberList"
+	FieldTypeDecimalList  = "decimalList"
+	FieldTypeDateTimeList = "datetimeList"
 )
 
 // Plan defines the parameters for harvesting.
 type Plan struct {
 	Source string  `yaml:"source" validate:"required,url"`
-	Data   []Datum `yaml:",flow" validate:"required,dive"`
+	Fields []Field `yaml:",flow" validate:"required,dive"`
 }
 
 // SetDefaults sets the default values for the plan.
 func (p *Plan) SetDefaults() {
-	for i := range p.Data {
-		p.Data[i].SetDefaults()
+	for i := range p.Fields {
+		p.Fields[i].SetDefaults()
 	}
 }
 
-// Datum is a single piece of data.
-type Datum struct {
+// Field is a single piece of data.
+type Field struct {
 	Name     string `yaml:"name" validate:"required,alpha"`
 	Type     string `yaml:"type" validate:"required,oneof=text number decimal datetime textList numberList decimalList datetimeList"` //nolint:revive
 	Selector string `yaml:"selector" validate:"required"`
@@ -45,7 +45,7 @@ type Datum struct {
 }
 
 // SetDefaults sets the default values for a datum.
-func (d *Datum) SetDefaults() {
+func (d *Field) SetDefaults() {
 	if d.Type == "" {
 		d.Type = "text"
 	}

@@ -65,14 +65,14 @@ func Harvest(p *plan.Plan) (map[string]any, error) {
 
 	harvested := make(map[string]any)
 
-	for i := range p.Data {
-		d := p.Data[i]
+	for i := range p.Fields {
+		d := p.Fields[i]
 
 		switch d.Type {
-		case plan.DatumTypeTextList,
-			plan.DatumTypeNumberList,
-			plan.DatumTypeDecimalList,
-			plan.DatumTypeDateTimeList:
+		case plan.FieldTypeTextList,
+			plan.FieldTypeNumberList,
+			plan.FieldTypeDecimalList,
+			plan.FieldTypeDateTimeList:
 			harvested[d.Name] = make([]string, 0)
 		}
 
@@ -97,15 +97,15 @@ func Harvest(p *plan.Plan) (map[string]any, error) {
 			}
 
 			switch d.Type {
-			case plan.DatumTypeText,
-				plan.DatumTypeNumber,
-				plan.DatumTypeDecimal,
-				plan.DatumTypeDateTime:
+			case plan.FieldTypeText,
+				plan.FieldTypeNumber,
+				plan.FieldTypeDecimal,
+				plan.FieldTypeDateTime:
 				harvested[d.Name] = text
-			case plan.DatumTypeTextList,
-				plan.DatumTypeNumberList,
-				plan.DatumTypeDecimalList,
-				plan.DatumTypeDateTimeList:
+			case plan.FieldTypeTextList,
+				plan.FieldTypeNumberList,
+				plan.FieldTypeDecimalList,
+				plan.FieldTypeDateTimeList:
 				harvested[d.Name] = append(harvested[d.Name].([]string), text) //nolint:forcetypeassert
 			}
 		})
@@ -125,7 +125,7 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]any) (any, err
 	sanitizeds := make(map[string]any)
 
 	for name, raw := range data {
-		d, found := lo.Find(p.Data, func(d plan.Datum) bool {
+		d, found := lo.Find(p.Fields, func(d plan.Field) bool {
 			return d.Name == name
 		})
 
@@ -136,10 +136,10 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]any) (any, err
 		name = strcase.ToSnake(name)
 
 		switch d.Type {
-		case plan.DatumTypeText,
-			plan.DatumTypeNumber,
-			plan.DatumTypeDecimal,
-			plan.DatumTypeDateTime:
+		case plan.FieldTypeText,
+			plan.FieldTypeNumber,
+			plan.FieldTypeDecimal,
+			plan.FieldTypeDateTime:
 			val, ok := raw.(string)
 			if !ok {
 				logger.Log.WarnwContext(ctx, "failed to cast value to string", "name", name, "raw", raw)
@@ -148,10 +148,10 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]any) (any, err
 			}
 
 			sanitizeds[name] = Sanitize(ctx, &d, val)
-		case plan.DatumTypeTextList,
-			plan.DatumTypeNumberList,
-			plan.DatumTypeDecimalList,
-			plan.DatumTypeDateTimeList:
+		case plan.FieldTypeTextList,
+			plan.FieldTypeNumberList,
+			plan.FieldTypeDecimalList,
+			plan.FieldTypeDateTimeList:
 			val, ok := raw.([]string)
 			if !ok {
 				logger.Log.WarnwContext(ctx, "failed to cast to []string", "name", name, "type", d.Type, "raw", raw) //nolint:revive
@@ -188,14 +188,14 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]any) (any, err
 }
 
 // Sanitize sanitizes a value according to a datum.
-func Sanitize(ctx context.Context, d *plan.Datum, val string) any {
+func Sanitize(ctx context.Context, d *plan.Field, val string) any {
 	var err error
 
 	conform := modifiers.New()
 
 	tags := []string{"trim"}
 	switch d.Type {
-	case plan.DatumTypeNumber, plan.DatumTypeDecimal:
+	case plan.FieldTypeNumber, plan.FieldTypeDecimal:
 		tags = append(tags, "strip_alpha", "strip_alpha_unicode", "strip_punctuation")
 	}
 
@@ -209,21 +209,21 @@ func Sanitize(ctx context.Context, d *plan.Datum, val string) any {
 
 	var sanitized any
 	switch d.Type {
-	case plan.DatumTypeText, plan.DatumTypeTextList:
+	case plan.FieldTypeText, plan.FieldTypeTextList:
 		sanitized = val
-	case plan.DatumTypeNumber, plan.DatumTypeNumberList:
+	case plan.FieldTypeNumber, plan.FieldTypeNumberList:
 		sanitized, err = strconv.ParseInt(val, base, bitSize)
 		if err != nil {
 			logger.Log.WarnwContext(ctx, "failed to parse number", "error", err, "val", val)
 			sanitized = 0
 		}
-	case plan.DatumTypeDecimal, plan.DatumTypeDecimalList:
+	case plan.FieldTypeDecimal, plan.FieldTypeDecimalList:
 		sanitized, err = strconv.ParseFloat(val, bitSize)
 		if err != nil {
 			logger.Log.WarnwContext(ctx, "failed to parse decimal", "error", err, "val", val)
 			sanitized = 0.0
 		}
-	case plan.DatumTypeDateTime, plan.DatumTypeDateTimeList:
+	case plan.FieldTypeDateTime, plan.FieldTypeDateTimeList:
 		if d.Format == "" {
 			sanitized = carbon.Parse(val).ToIso8601String()
 		} else {
@@ -237,8 +237,8 @@ func Sanitize(ctx context.Context, d *plan.Datum, val string) any {
 func dynamicStructBuilder(p *plan.Plan) (dynamicstruct.Builder, error) {
 	builder := dynamicstruct.NewStruct()
 
-	for i := range p.Data {
-		d := p.Data[i]
+	for i := range p.Fields {
+		d := p.Fields[i]
 
 		var (
 			typ  interface{}
@@ -247,21 +247,21 @@ func dynamicStructBuilder(p *plan.Plan) (dynamicstruct.Builder, error) {
 			}
 		)
 		switch d.Type {
-		case plan.DatumTypeText:
+		case plan.FieldTypeText:
 			typ = ""
-		case plan.DatumTypeNumber:
+		case plan.FieldTypeNumber:
 			typ = 0
-		case plan.DatumTypeDecimal:
+		case plan.FieldTypeDecimal:
 			typ = 0.0
-		case plan.DatumTypeDateTime:
+		case plan.FieldTypeDateTime:
 			typ = time.Time{}
-		case plan.DatumTypeTextList:
+		case plan.FieldTypeTextList:
 			typ = []string{}
-		case plan.DatumTypeNumberList:
+		case plan.FieldTypeNumberList:
 			typ = []int{}
-		case plan.DatumTypeDecimalList:
+		case plan.FieldTypeDecimalList:
 			typ = []float64{}
-		case plan.DatumTypeDateTimeList:
+		case plan.FieldTypeDateTimeList:
 			typ = []time.Time{}
 		}
 
