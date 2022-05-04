@@ -65,8 +65,8 @@ func Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error) {
 							)
 						}
 					} else if len(nodes) == 1 &&
-						nodes[0].ChildNodeCount > 0 ||
-						nodes[0].Children[0].NodeType != cdp.NodeTypeText {
+						nodes[0].ChildNodeCount > 0 &&
+						nodes[0].Children[0].NodeType == cdp.NodeTypeText {
 						harvested[field.Name] = nodes[0].Children[0].NodeValue
 					}
 
