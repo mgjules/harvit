@@ -45,7 +45,7 @@ var harvest = &cli.Command{
 
 		logger.Log.Debugw("harvesting done", "harvested", harvested)
 
-		transformed, err := harvit.Transform(c.Context, plan, harvested)
+		transformed, err := harvit.Transform(c.Context, plan.Fields, harvested)
 		if err != nil {
 			return fmt.Errorf("failed to transform data: %w", err)
 		}
