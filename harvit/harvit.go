@@ -116,33 +116,13 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]any) (any, err
 
 		name = strcase.ToSnake(name)
 
-		switch d.Type {
-		case plan.FieldTypeText,
-			plan.FieldTypeNumber,
-			plan.FieldTypeDecimal,
-			plan.FieldTypeDateTime:
-			val, ok := raw.(string)
-			if !ok {
-				logger.Log.WarnwContext(ctx, "failed to cast value to string", "name", name, "raw", raw)
-
-				continue
-			}
-
-			sanitizeds[name] = Sanitize(ctx, &d, val)
-		case plan.FieldTypeTextList,
-			plan.FieldTypeNumberList,
-			plan.FieldTypeDecimalList,
-			plan.FieldTypeDateTimeList:
-			val, ok := raw.([]string)
-			if !ok {
-				logger.Log.WarnwContext(ctx, "failed to cast to []string", "name", name, "type", d.Type, "raw", raw)
-
-				continue
-			}
-
+		switch r := raw.(type) {
+		case string:
+			sanitizeds[name] = Sanitize(ctx, &d, r)
+		case []string:
 			sanitizeds[name] = make([]any, 0)
-			for i := range val {
-				sanitizeds[name] = append(sanitizeds[name].([]any), Sanitize(ctx, &d, val[i])) //nolint:forcetypeassert
+			for i := range r {
+				sanitizeds[name] = append(sanitizeds[name].([]any), Sanitize(ctx, &d, r[i])) //nolint:forcetypeassert
 			}
 		}
 	}
