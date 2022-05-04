@@ -4,7 +4,7 @@
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?style=for-the-badge)](https://conventionalcommits.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=for-the-badge)](LICENSE)
 
-Harvit scrapes data from different sources (e.g websites, APIs) and transforms it. 
+Harvit harvests data from different sources (e.g websites, APIs), transforms and exports it.
 
 
 ## Contents
