@@ -77,36 +77,17 @@ func Harvest(p *plan.Plan) (map[string]any, error) {
 		}
 
 		c.OnHTML(d.Selector, func(e *colly.HTMLElement) {
-			text := e.Text
-
-			if d.Regex != "" {
-				re, err := regexp.Compile(d.Regex)
-				if err != nil {
-					logger.Log.Warnw("failed to compile regex", "name", d.Name, "regex", d.Regex, "error", err)
-
-					return
-				}
-
-				matches := re.FindStringSubmatch(text)
-
-				logger.Log.Debugw(
-					"regex matches", "name", d.Name, "text", text, "regex", d.Regex, "matches", matches,
-				)
-
-				text = matches[1]
-			}
-
 			switch d.Type {
 			case plan.FieldTypeText,
 				plan.FieldTypeNumber,
 				plan.FieldTypeDecimal,
 				plan.FieldTypeDateTime:
-				harvested[d.Name] = text
+				harvested[d.Name] = e.Text
 			case plan.FieldTypeTextList,
 				plan.FieldTypeNumberList,
 				plan.FieldTypeDecimalList,
 				plan.FieldTypeDateTimeList:
-				harvested[d.Name] = append(harvested[d.Name].([]string), text) //nolint:forcetypeassert
+				harvested[d.Name] = append(harvested[d.Name].([]string), e.Text) //nolint:forcetypeassert
 			}
 		})
 	}
@@ -190,6 +171,24 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]any) (any, err
 // Sanitize sanitizes a value according to a datum.
 func Sanitize(ctx context.Context, d *plan.Field, val string) any {
 	var err error
+
+	if d.Regex != "" {
+		var re *regexp.Regexp
+		re, err = regexp.Compile(d.Regex)
+		if err != nil {
+			logger.Log.Warnw("failed to compile regex", "name", d.Name, "regex", d.Regex, "error", err)
+
+			return val
+		}
+
+		matches := re.FindStringSubmatch(val)
+
+		logger.Log.Debugw(
+			"regex matches", "name", d.Name, "val", val, "regex", d.Regex, "matches", matches, //nolint:revive
+		)
+
+		val = matches[1]
+	}
 
 	conform := modifiers.New()
 
