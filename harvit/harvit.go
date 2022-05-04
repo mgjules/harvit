@@ -42,13 +42,13 @@ func Harvest(p *plan.Plan) (map[string]any, error) {
 	c.WithTransport(&http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
-			Timeout:   30 * time.Second, //nolint:revive
-			KeepAlive: 30 * time.Second, //nolint:revive
+			Timeout:   30 * time.Second,
+			KeepAlive: 30 * time.Second,
 			DualStack: true,
 		}).DialContext,
-		MaxIdleConns:          100,              //nolint:revive
-		IdleConnTimeout:       90 * time.Second, //nolint:revive
-		TLSHandshakeTimeout:   10 * time.Second, //nolint:revive
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
 		ExpectContinueTimeout: 1 * time.Second,
 	})
 
@@ -135,7 +135,7 @@ func Transform(ctx context.Context, p *plan.Plan, data map[string]any) (any, err
 			plan.FieldTypeDateTimeList:
 			val, ok := raw.([]string)
 			if !ok {
-				logger.Log.WarnwContext(ctx, "failed to cast to []string", "name", name, "type", d.Type, "raw", raw) //nolint:revive
+				logger.Log.WarnwContext(ctx, "failed to cast to []string", "name", name, "type", d.Type, "raw", raw)
 
 				continue
 			}
@@ -184,7 +184,7 @@ func Sanitize(ctx context.Context, d *plan.Field, val string) any {
 		matches := re.FindStringSubmatch(val)
 
 		logger.Log.Debugw(
-			"regex matches", "name", d.Name, "val", val, "regex", d.Regex, "matches", matches, //nolint:revive
+			"regex matches", "name", d.Name, "val", val, "regex", d.Regex, "matches", matches,
 		)
 
 		val = matches[1]
