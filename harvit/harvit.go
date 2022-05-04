@@ -29,7 +29,7 @@ const (
 )
 
 // Harvest extracts data from a source using a plan.
-func Harvest(p *plan.Plan) (map[string]any, error) {
+func Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error) {
 	parsed, err := url.Parse(p.Source)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse source URL: %w", err)
@@ -60,7 +60,7 @@ func Harvest(p *plan.Plan) (map[string]any, error) {
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
-		logger.Log.Errorw("failed to visit", "url", r.Request.URL.String(), "err", err)
+		logger.Log.ErrorwContext(ctx, "failed to visit", "url", r.Request.URL.String(), "err", err)
 	})
 
 	harvested := make(map[string]any)

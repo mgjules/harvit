@@ -38,7 +38,7 @@ var harvest = &cli.Command{
 			return fmt.Errorf("failed to load plan: %w", err)
 		}
 
-		harvested, err := harvit.Harvest(plan)
+		harvested, err := harvit.Harvest(c.Context, plan)
 		if err != nil {
 			return fmt.Errorf("failed to harvest data: %w", err)
 		}
