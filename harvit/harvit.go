@@ -12,7 +12,7 @@ import (
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/go-playground/mold/v4/modifiers"
-	"github.com/golang-module/carbon"
+	"github.com/golang-module/carbon/v2"
 	"github.com/iancoleman/strcase"
 	"github.com/mgjules/harvit/logger"
 	"github.com/mgjules/harvit/plan"
