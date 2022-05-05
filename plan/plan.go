@@ -12,14 +12,10 @@ import (
 
 // Datum types.
 const (
-	FieldTypeText         = "text"
-	FieldTypeNumber       = "number"
-	FieldTypeDecimal      = "decimal"
-	FieldTypeDateTime     = "datetime"
-	FieldTypeTextList     = "textList"
-	FieldTypeNumberList   = "numberList"
-	FieldTypeDecimalList  = "decimalList"
-	FieldTypeDateTimeList = "datetimeList"
+	FieldTypeText     = "text"
+	FieldTypeNumber   = "number"
+	FieldTypeDecimal  = "decimal"
+	FieldTypeDateTime = "datetime"
 )
 
 // Plan defines the parameters for harvesting.
@@ -38,7 +34,7 @@ func (p *Plan) SetDefaults() {
 // Field is a single piece of data.
 type Field struct {
 	Name     string `yaml:"name" validate:"required,alpha"`
-	Type     string `yaml:"type" validate:"required,oneof=text number decimal datetime textList numberList decimalList datetimeList"` //nolint:revive
+	Type     string `yaml:"type" validate:"required,oneof=text number decimal datetime"` 
 	Selector string `yaml:"selector" validate:"required"`
 	Regex    string `yaml:"regex"`
 	Format   string `yaml:"format"`
