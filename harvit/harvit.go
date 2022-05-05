@@ -85,8 +85,8 @@ func Transform(ctx context.Context, fields []plan.Field, data map[string]any) (a
 	sanitizeds := make(map[string]any)
 
 	for name, raw := range data {
-		field, found := lo.Find(fields, func(d plan.Field) bool {
-			return d.Name == name
+		field, found := lo.Find(fields, func(f plan.Field) bool {
+			return f.Name == name
 		})
 
 		if !found {
@@ -114,7 +114,7 @@ func Transform(ctx context.Context, fields []plan.Field, data map[string]any) (a
 	return sanitizeds, nil
 }
 
-// Sanitize sanitizes a value according to a datum.
+// Sanitize sanitizes a value according to a field.
 func Sanitize(ctx context.Context, field *plan.Field, val string) any {
 	var err error
 

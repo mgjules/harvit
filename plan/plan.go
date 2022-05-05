@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Datum types.
+// Field types.
 const (
 	FieldTypeText     = "text"
 	FieldTypeNumber   = "number"
@@ -34,13 +34,13 @@ func (p *Plan) SetDefaults() {
 // Field is a single piece of data.
 type Field struct {
 	Name     string `yaml:"name" validate:"required,alpha"`
-	Type     string `yaml:"type" validate:"required,oneof=text number decimal datetime"` 
+	Type     string `yaml:"type" validate:"required,oneof=text number decimal datetime"`
 	Selector string `yaml:"selector" validate:"required"`
 	Regex    string `yaml:"regex"`
 	Format   string `yaml:"format"`
 }
 
-// SetDefaults sets the default values for a datum.
+// SetDefaults sets the default values for a field.
 func (d *Field) SetDefaults() {
 	if d.Type == "" {
 		d.Type = "text"
