@@ -33,11 +33,15 @@ func (p *Plan) SetDefaults() {
 
 // Field is a single piece of data.
 type Field struct {
-	Name     string `yaml:"name" validate:"required,alpha"`
-	Type     string `yaml:"type" validate:"required,oneof=text number decimal datetime"`
+	Name string `yaml:"name" validate:"required,alpha"`
+	Type string `yaml:"type" validate:"required,oneof=text number decimal datetime"`
+	// CSS Selector
 	Selector string `yaml:"selector" validate:"required"`
-	Regex    string `yaml:"regex"`
-	Format   string `yaml:"format"`
+	// Regex to extract data from the selector
+	Regex string `yaml:"regex"`
+	// See: https://github.com/golang-module/carbon#format-sign-table
+	Format string `yaml:"format"`
+	// TZ Database name e.g "Indian/Mauritius"
 	Timezone string `yaml:"timezone"`
 }
 
