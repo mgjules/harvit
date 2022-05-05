@@ -3,7 +3,6 @@ module github.com/mgjules/harvit
 go 1.18
 
 require (
-	github.com/Ompluscator/dynamic-struct v1.3.0
 	github.com/chromedp/cdproto v0.0.0-20220428002153-285dfb42699c
 	github.com/chromedp/chromedp v0.8.1
 	github.com/go-playground/mold/v4 v4.2.0
