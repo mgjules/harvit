@@ -169,11 +169,18 @@ func Sanitize(ctx context.Context, field *plan.Field, val string) any {
 			sanitized = 0.0
 		}
 	case plan.FieldTypeDateTime:
+		var parsed carbon.Carbon
 		if field.Format == "" {
-			sanitized = carbon.Parse(val).ToIso8601String()
+			parsed = carbon.Parse(val)
 		} else {
-			sanitized = carbon.ParseByFormat(val, field.Format).ToIso8601String()
+			parsed = carbon.ParseByFormat(val, field.Format)
 		}
+
+		if field.Timezone != "" {
+			parsed = parsed.SetTimezone(field.Timezone)
+		}
+
+		sanitized = parsed.ToIso8601String()
 	}
 
 	return sanitized

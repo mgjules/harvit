@@ -38,6 +38,7 @@ type Field struct {
 	Selector string `yaml:"selector" validate:"required"`
 	Regex    string `yaml:"regex"`
 	Format   string `yaml:"format"`
+	Timezone string `yaml:"timezone"`
 }
 
 // SetDefaults sets the default values for a field.
