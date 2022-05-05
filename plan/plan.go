@@ -21,6 +21,7 @@ const (
 // Plan defines the parameters for harvesting.
 type Plan struct {
 	Source string  `yaml:"source" validate:"required,url"`
+	Type   string  `yaml:"type" validate:"required,oneof=website"`
 	Fields []Field `yaml:",flow" validate:"required,dive"`
 }
 

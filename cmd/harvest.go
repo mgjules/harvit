@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/mgjules/harvit/harvester"
 	"github.com/mgjules/harvit/harvit"
 	"github.com/mgjules/harvit/logger"
 	"github.com/mgjules/harvit/plan"
@@ -38,7 +39,12 @@ var harvest = &cli.Command{
 			return fmt.Errorf("failed to load plan: %w", err)
 		}
 
-		harvested, err := harvit.Harvest(c.Context, plan)
+		var h harvester.Harvester
+		if plan.Type == harvester.TypeWebsite {
+			h = harvester.Website{}
+		}
+
+		harvested, err := h.Harvest(c.Context, plan)
 		if err != nil {
 			return fmt.Errorf("failed to harvest data: %w", err)
 		}
