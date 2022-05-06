@@ -11,10 +11,10 @@ import (
 
 // Plan defines the parameters for harvesting.
 type Plan struct {
-	Source    string  `yaml:"source" validate:"required,url"`
-	Type      string  `yaml:"type" validate:"required,oneof=website"`
-	UserAgent string  `yaml:"user_agent"`
-	Fields    []Field `yaml:",flow" validate:"required,dive"`
+	Source     string   `yaml:"source" validate:"required,url"`
+	Type       string   `yaml:"type" validate:"required,oneof=website"`
+	UserAgents []string `yaml:"user_agents"`
+	Fields     []Field  `yaml:",flow" validate:"required,dive"`
 	// Location of the transformer file.
 	Transformer string `yaml:"transformer"`
 }

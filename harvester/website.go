@@ -32,8 +32,10 @@ func (Website) Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error
 
 	harvested := make(map[string]any)
 
-	userAgent := p.UserAgent //nolint:ifshort
-	if userAgent == "" {
+	var userAgent string
+	if len(p.UserAgents) > 0 {
+		userAgent = p.UserAgents[rand.Intn(len(p.UserAgents))] //nolint:gosec
+	} else {
 		userAgent = uaGens[rand.Intn(len(uaGens))]() //nolint:gosec
 	}
 
