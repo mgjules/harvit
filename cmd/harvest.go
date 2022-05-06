@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/mgjules/harvit/conformer"
 	"github.com/mgjules/harvit/harvester"
 	"github.com/mgjules/harvit/logger"
 	"github.com/mgjules/harvit/plan"
-	"github.com/mgjules/harvit/transformer"
 	"github.com/urfave/cli/v2"
 )
 
@@ -51,12 +51,12 @@ var harvest = &cli.Command{
 
 		logger.Log.Debugw("harvesting done", "harvested", harvested)
 
-		transformed, err := transformer.Transform(c.Context, plan.Fields, harvested)
+		conformed, err := conformer.Conform(c.Context, plan.Fields, harvested)
 		if err != nil {
-			return fmt.Errorf("failed to transform data: %w", err)
+			return fmt.Errorf("failed to conform data: %w", err)
 		}
 
-		logger.Log.Debugw("transformation done", "transformed", transformed)
+		logger.Log.Debugw("conforming done", "conformed", conformed)
 
 		return nil
 	},

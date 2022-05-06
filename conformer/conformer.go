@@ -1,4 +1,4 @@
-package transformer
+package conformer
 
 import (
 	"context"
@@ -13,9 +13,9 @@ import (
 	"github.com/samber/lo"
 )
 
-// Transform transforms any harvested data.
-func Transform(ctx context.Context, fields []plan.Field, data map[string]any) (any, error) {
-	sanitizeds := make(map[string]any)
+// Conform conforms any harvested data to a set of rules.
+func Conform(ctx context.Context, fields []plan.Field, data map[string]any) (any, error) {
+	conformed := make(map[string]any)
 
 	for name, raw := range data {
 		field, found := lo.Find(fields, func(f plan.Field) bool {
@@ -30,24 +30,22 @@ func Transform(ctx context.Context, fields []plan.Field, data map[string]any) (a
 
 		switch r := raw.(type) {
 		case string:
-			sanitizeds[name] = transformField(ctx, &field, r)
+			conformed[name] = conformField(ctx, &field, r)
 		case []string:
-			sanitizeds[name] = make([]any, 0)
+			conformed[name] = make([]any, 0)
 			for i := range r {
-				sanitizeds[name] = append( //nolint:forcetypeassert
-					sanitizeds[name].([]any),
-					transformField(ctx, &field, r[i]),
+				conformed[name] = append( //nolint:forcetypeassert
+					conformed[name].([]any),
+					conformField(ctx, &field, r[i]),
 				)
 			}
 		}
 	}
 
-	logger.Log.Debugw("sanitized data", "sanitized", sanitizeds)
-
-	return sanitizeds, nil
+	return conformed, nil
 }
 
-func transformField(ctx context.Context, field *plan.Field, val string) any {
+func conformField(ctx context.Context, field *plan.Field, val string) any {
 	var err error
 
 	if field.Regex != "" {
