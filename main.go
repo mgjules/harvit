@@ -12,7 +12,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "Harvit"
 	app.Usage = "Harvest It!"
-	app.Description = "Harvit harvests data from different sources (e.g websites, APIs) and transforms it."
+	app.Description = "Harvit harvests data from different sources (e.g websites, APIs), converts and transforms it."
 	app.Authors = []*cli.Author{
 		{
 			Name:  "Michaël Giovanni Jules",
