@@ -7,6 +7,7 @@ import (
 	"github.com/mgjules/harvit/harvester"
 	"github.com/mgjules/harvit/logger"
 	"github.com/mgjules/harvit/plan"
+	"github.com/mgjules/harvit/transformer"
 	"github.com/urfave/cli/v2"
 )
 
@@ -57,6 +58,12 @@ var harvest = &cli.Command{
 		}
 
 		logger.Log.Debugw("conforming done", "conformed", conformed)
+
+		if plan.Transformer != "" {
+			transformed := transformer.Transform(c.Context, plan.Transformer, plan.Fields, conformed)
+
+			logger.Log.Debugw("transformation done", "transformed", transformed)
+		}
 
 		return nil
 	},

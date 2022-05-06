@@ -5,10 +5,10 @@ go 1.18
 require (
 	github.com/chromedp/cdproto v0.0.0-20220428002153-285dfb42699c
 	github.com/chromedp/chromedp v0.8.1
+	github.com/dop251/goja v0.0.0-20220501172647-e1eca0b61fa9
 	github.com/go-playground/mold/v4 v4.2.0
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/golang-module/carbon/v2 v2.1.5
-	github.com/iancoleman/strcase v0.2.0
 	github.com/imdario/mergo v0.3.12
 	github.com/json-iterator/go v1.1.12
 	github.com/magefile/mage v1.13.0
@@ -23,8 +23,10 @@ require (
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/chromedp/sysutil v1.0.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
+	github.com/dlclark/regexp2 v1.4.1-0.20201116162257-a2a8dda75c91 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
+	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
 	github.com/gobwas/ws v1.1.0 // indirect

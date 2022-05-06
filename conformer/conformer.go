@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/go-playground/mold/v4/modifiers"
-	"github.com/iancoleman/strcase"
 	"github.com/mgjules/harvit/converter"
 	"github.com/mgjules/harvit/logger"
 	"github.com/mgjules/harvit/plan"
@@ -14,7 +13,7 @@ import (
 )
 
 // Conform conforms any harvested data to a set of rules.
-func Conform(ctx context.Context, fields []plan.Field, data map[string]any) (any, error) {
+func Conform(ctx context.Context, fields []plan.Field, data map[string]any) (map[string]any, error) {
 	conformed := make(map[string]any)
 
 	for name, raw := range data {
@@ -25,8 +24,6 @@ func Conform(ctx context.Context, fields []plan.Field, data map[string]any) (any
 		if !found {
 			continue
 		}
-
-		name = strcase.ToSnake(name)
 
 		switch r := raw.(type) {
 		case string:

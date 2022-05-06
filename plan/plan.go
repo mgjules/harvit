@@ -15,6 +15,8 @@ type Plan struct {
 	Source string  `yaml:"source" validate:"required,url"`
 	Type   string  `yaml:"type" validate:"required,oneof=website"`
 	Fields []Field `yaml:",flow" validate:"required,dive"`
+	// Location of the transformer file.
+	Transformer string `yaml:"transformer"`
 }
 
 // SetDefaults sets the default values for the plan.
@@ -28,9 +30,9 @@ func (p *Plan) SetDefaults() {
 type Field struct {
 	Name string `yaml:"name" validate:"required,alpha"`
 	Type string `yaml:"type" validate:"required,oneof=text number decimal datetime"`
-	// CSS Selector
+	// CSS Selector.
 	Selector string `yaml:"selector" validate:"required"`
-	// Regex to extract data from the selector
+	// Regex to extract data from the selector.
 	Regex string `yaml:"regex"`
 	// See: https://github.com/golang-module/carbon#format-sign-table
 	Format string `yaml:"format"`

@@ -21,4 +21,8 @@ bin/*
 # Environment variable
 .env
 
+# Transformers
+transformers/*
+!transformers/.gitkeep
+
 plan.yml
