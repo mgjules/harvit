@@ -10,14 +10,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// Field types.
-const (
-	FieldTypeText     = "text"
-	FieldTypeNumber   = "number"
-	FieldTypeDecimal  = "decimal"
-	FieldTypeDateTime = "datetime"
-)
-
 // Plan defines the parameters for harvesting.
 type Plan struct {
 	Source string  `yaml:"source" validate:"required,url"`

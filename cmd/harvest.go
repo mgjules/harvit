@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/mgjules/harvit/harvester"
-	"github.com/mgjules/harvit/harvit"
 	"github.com/mgjules/harvit/logger"
 	"github.com/mgjules/harvit/plan"
+	"github.com/mgjules/harvit/transformer"
 	"github.com/urfave/cli/v2"
 )
 
@@ -39,9 +39,9 @@ var harvest = &cli.Command{
 			return fmt.Errorf("failed to load plan: %w", err)
 		}
 
-		var h harvester.Harvester
-		if plan.Type == harvester.TypeWebsite {
-			h = harvester.Website{}
+		h, err := harvester.New(plan.Type)
+		if err != nil {
+			return fmt.Errorf("failed to create harvester: %w", err)
 		}
 
 		harvested, err := h.Harvest(c.Context, plan)
@@ -51,7 +51,7 @@ var harvest = &cli.Command{
 
 		logger.Log.Debugw("harvesting done", "harvested", harvested)
 
-		transformed, err := harvit.Transform(c.Context, plan.Fields, harvested)
+		transformed, err := transformer.Transform(c.Context, plan.Fields, harvested)
 		if err != nil {
 			return fmt.Errorf("failed to transform data: %w", err)
 		}
