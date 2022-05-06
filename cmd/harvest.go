@@ -40,6 +40,8 @@ var harvest = &cli.Command{
 			return fmt.Errorf("failed to load plan: %w", err)
 		}
 
+		logger.Log.Debugw("loaded plan", "plan", plan)
+
 		h, err := harvester.New(plan.Type)
 		if err != nil {
 			return fmt.Errorf("failed to create harvester: %w", err)

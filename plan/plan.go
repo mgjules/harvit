@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/mgjules/harvit/logger"
 	"gopkg.in/yaml.v2"
 )
 
@@ -21,6 +20,10 @@ type Plan struct {
 
 // SetDefaults sets the default values for the plan.
 func (p *Plan) SetDefaults() {
+	if p.Type == "" {
+		p.Type = "website"
+	}
+
 	for i := range p.Fields {
 		p.Fields[i].SetDefaults()
 	}
@@ -29,7 +32,7 @@ func (p *Plan) SetDefaults() {
 // Field is a single piece of data.
 type Field struct {
 	Name string `yaml:"name" validate:"required,alpha"`
-	Type string `yaml:"type" validate:"required,oneof=text number decimal datetime"`
+	Type string `yaml:"type" validate:"required,oneof=raw text number decimal datetime"`
 	// CSS Selector.
 	Selector string `yaml:"selector" validate:"required"`
 	// Regex to extract data from the selector.
@@ -65,8 +68,6 @@ func Load(path string) (*Plan, error) {
 	if err := validate.Struct(plan); err != nil {
 		return nil, fmt.Errorf("failed to validate plan: %w", err)
 	}
-
-	logger.Log.Debugw("loaded plan", "plan", plan)
 
 	return &plan, nil
 }

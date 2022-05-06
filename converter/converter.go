@@ -9,6 +9,7 @@ import (
 
 // Field types.
 const (
+	TypeRaw      = "raw"
 	TypeText     = "text"
 	TypeNumber   = "number"
 	TypeDecimal  = "decimal"
@@ -18,7 +19,7 @@ const (
 // New returns a new Converter.
 func New(typ string) (Converter, error) {
 	switch typ {
-	case TypeText:
+	case TypeRaw, TypeText:
 		return &Text{}, nil
 	case TypeNumber:
 		return &Number{}, nil

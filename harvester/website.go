@@ -6,8 +6,10 @@ import (
 	"net/url"
 
 	"github.com/chromedp/cdproto/cdp"
+	"github.com/chromedp/cdproto/dom"
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
+	"github.com/mgjules/harvit/converter"
 	"github.com/mgjules/harvit/logger"
 	"github.com/mgjules/harvit/plan"
 )
@@ -16,6 +18,7 @@ import (
 type Website struct{}
 
 // Harvest harvests data from a website using a plan.
+//nolint:gocognit
 func (Website) Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error) {
 	if _, err := url.Parse(p.Source); err != nil {
 		return nil, fmt.Errorf("failed to parse source URL: %w", err)
@@ -43,6 +46,22 @@ func (Website) Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error
 					if len(nodes) > 1 {
 						harvested[field.Name] = make([]string, 0)
 						for i := range nodes {
+							if field.Type == converter.TypeRaw {
+								html, err := dom.GetOuterHTML().WithNodeID(nodes[i].NodeID).Do(ctx)
+								if err != nil {
+									logger.Log.ErrorwContext(ctx,
+										"failed to get outer HTML",
+										"name", field.Name, "selector", field.Selector, "node", nodes[i],
+									)
+
+									continue
+								}
+
+								harvested[field.Name] = html
+
+								continue
+							}
+
 							if nodes[i].ChildNodeCount == 0 || nodes[i].Children[0].NodeType != cdp.NodeTypeText {
 								continue
 							}
@@ -52,10 +71,21 @@ func (Website) Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error
 								nodes[i].Children[0].NodeValue,
 							)
 						}
-					} else if len(nodes) == 1 &&
-						nodes[0].ChildNodeCount > 0 &&
-						nodes[0].Children[0].NodeType == cdp.NodeTypeText {
-						harvested[field.Name] = nodes[0].Children[0].NodeValue
+					} else if len(nodes) == 1 {
+						if field.Type == converter.TypeRaw {
+							html, err := dom.GetOuterHTML().WithNodeID(nodes[0].NodeID).Do(ctx)
+							if err != nil {
+								logger.Log.ErrorwContext(ctx,
+									"failed to get outer HTML",
+									"name", field.Name, "selector", field.Selector, "node", nodes[0],
+								)
+							} else {
+								harvested[field.Name] = html
+							}
+						} else if nodes[0].ChildNodeCount > 0 &&
+							nodes[0].Children[0].NodeType == cdp.NodeTypeText {
+							harvested[field.Name] = nodes[0].Children[0].NodeValue
+						}
 					}
 
 					return nil
