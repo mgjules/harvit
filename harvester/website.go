@@ -3,10 +3,12 @@ package harvester
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"net/url"
 
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/cdproto/dom"
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/mgjules/harvit/converter"
@@ -30,7 +32,18 @@ func (Website) Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error
 
 	harvested := make(map[string]any)
 
+	userAgent := p.UserAgent //nolint:ifshort
+	if userAgent == "" {
+		userAgent = uaGens[rand.Intn(len(uaGens))]() //nolint:gosec
+	}
+
 	actions := []chromedp.Action{
+		network.Enable(),
+		network.SetExtraHTTPHeaders(
+			network.Headers(map[string]interface{}{
+				"User-Agent": userAgent,
+			}),
+		),
 		chromedp.Navigate(p.Source),
 	}
 
@@ -99,4 +112,50 @@ func (Website) Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error
 	}
 
 	return harvested, nil
+}
+
+var uaGens = []func() string{
+	genFirefoxUA,
+	genChromeUA,
+}
+
+var ffVersions = []float32{
+	58.0,
+	57.0,
+	56.0,
+	52.0,
+	48.0,
+	40.0,
+	35.0,
+}
+
+var chromeVersions = []string{
+	"65.0.3325.146",
+	"64.0.3282.0",
+	"41.0.2228.0",
+	"40.0.2214.93",
+	"37.0.2062.124",
+}
+
+var osStrings = []string{
+	"Macintosh; Intel Mac OS X 10_10",
+	"Windows NT 10.0",
+	"Windows NT 5.1",
+	"Windows NT 6.1; WOW64",
+	"Windows NT 6.1; Win64; x64",
+	"X11; Linux x86_64",
+}
+
+func genFirefoxUA() string {
+	version := ffVersions[rand.Intn(len(ffVersions))] //nolint:gosec
+	os := osStrings[rand.Intn(len(osStrings))]        //nolint:gosec
+
+	return fmt.Sprintf("Mozilla/5.0 (%s; rv:%.1f) Gecko/20100101 Firefox/%.1f", os, version, version)
+}
+
+func genChromeUA() string {
+	version := chromeVersions[rand.Intn(len(chromeVersions))] //nolint:gosec
+	os := osStrings[rand.Intn(len(osStrings))]                //nolint:gosec
+
+	return fmt.Sprintf("Mozilla/5.0 (%s) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/%s Safari/537.36", os, version)
 }
