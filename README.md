@@ -9,8 +9,14 @@ Harvit harvests data from different sources (e.g websites, APIs), converts and t
 
 ## Contents
 
+- [harvit](#harvit)
+  - [Contents](#contents)
   - [Requirements](#requirements)
   - [Usage](#usage)
+  - [Example](#example)
+    - [plan.yml](#planyml)
+    - [transformers/sample.js](#transformerssamplejs)
+    - [Result](#result)
   - [License](#license)
   - [Stability](#stability)
 
@@ -24,6 +30,8 @@ Harvit harvests data from different sources (e.g websites, APIs), converts and t
 - [Docker](https://www.docker.com) - Containerization.
 
 ## Usage
+
+Harvit uses a `plan` in yaml format (see example below) to define the data source, fields and the transformer to be performed.
 
 ```shell
 $ ./harvit harvest [command options] plan
