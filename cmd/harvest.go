@@ -18,16 +18,16 @@ var harvest = &cli.Command{
 	UsageText: "harvit harvest [command options] plan",
 	Flags: []cli.Flag{
 		&cli.BoolFlag{
-			Name:    "prod",
+			Name:    "debug",
 			Value:   false,
 			Usage:   "whether running in PROD or DEBUG mode",
-			EnvVars: []string{"HARVIT_PROD"},
+			EnvVars: []string{"HARVIT_DEBUG"},
 		},
 	},
 	Action: func(c *cli.Context) error {
-		prod := c.Bool("prod")
+		debug := c.Bool("debug")
 
-		if _, err := logger.New(prod); err != nil {
+		if _, err := logger.New(debug); err != nil {
 			return fmt.Errorf("failed to create logger: %w", err)
 		}
 

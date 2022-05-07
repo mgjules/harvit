@@ -17,7 +17,7 @@ type Logger struct {
 }
 
 // New creates a new Logger.
-func New(prod bool) (*Logger, error) {
+func New(debug bool) (*Logger, error) {
 	if Log != nil {
 		return Log, nil
 	}
@@ -27,10 +27,10 @@ func New(prod bool) (*Logger, error) {
 		err    error
 	)
 
-	if prod {
-		logger, err = zap.NewProduction()
-	} else {
+	if debug {
 		logger, err = zap.NewDevelopment()
+	} else {
+		logger, err = zap.NewProduction()
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to create logger: %w", err)
