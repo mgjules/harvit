@@ -20,7 +20,6 @@ import (
 type Website struct{}
 
 // Harvest harvests data from a website using a plan.
-
 func (Website) Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error) {
 	if _, err := url.Parse(p.Source); err != nil {
 		return nil, fmt.Errorf("failed to parse source URL: %w", err)
