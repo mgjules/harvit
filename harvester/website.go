@@ -20,7 +20,7 @@ import (
 type Website struct{}
 
 // Harvest harvests data from a website using a plan.
-//nolint:gocognit
+
 func (Website) Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error) {
 	if _, err := url.Parse(p.Source); err != nil {
 		return nil, fmt.Errorf("failed to parse source URL: %w", err)
@@ -30,14 +30,14 @@ func (Website) Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error
 	ctx, cancel := chromedp.NewContext(ctx)
 	defer cancel()
 
-	harvested := make(map[string]any)
-
 	var userAgent string
 	if len(p.UserAgents) > 0 {
 		userAgent = p.UserAgents[rand.Intn(len(p.UserAgents))] //nolint:gosec
 	} else {
 		userAgent = uaGens[rand.Intn(len(uaGens))]() //nolint:gosec
 	}
+
+	harvested := make(map[string]any)
 
 	actions := []chromedp.Action{
 		network.Enable(),
@@ -49,8 +49,27 @@ func (Website) Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error
 		chromedp.Navigate(p.Source),
 	}
 
-	for i := range p.Fields {
-		field := p.Fields[i]
+	harvested, actions = compileFieldActions(p.Fields, harvested, actions)
+
+	if err := chromedp.Run(ctx, actions...); err != nil {
+		return nil, fmt.Errorf("failed to navigate to source: %w", err)
+	}
+
+	return harvested, nil
+}
+
+//nolint:gocognit
+func compileFieldActions(
+	fields []plan.Field,
+	harvested map[string]any,
+	actions []chromedp.Action,
+) (map[string]any, []chromedp.Action) {
+	if len(fields) == 0 {
+		return harvested, actions
+	}
+
+	for i := range fields {
+		field := fields[i]
 
 		actions = append(
 			actions,
@@ -109,11 +128,7 @@ func (Website) Harvest(ctx context.Context, p *plan.Plan) (map[string]any, error
 		)
 	}
 
-	if err := chromedp.Run(ctx, actions...); err != nil {
-		return nil, fmt.Errorf("failed to navigate to source: %w", err)
-	}
-
-	return harvested, nil
+	return harvested, actions
 }
 
 var uaGens = []func() string{
