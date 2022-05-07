@@ -22,4 +22,4 @@ RUN upx --best --lzma /tmp/harvit
 # gcr.io/distroless/static is perfect for Go app that do not depend on libc
 FROM gcr.io/distroless/static
 COPY --from=builder /tmp/harvit /harvit
-CMD ["/harvit", "serve"]
+CMD ["/harvit", "harvest"]
