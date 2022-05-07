@@ -5,6 +5,7 @@ import (
 
 	"github.com/mgjules/harvit/conformer"
 	"github.com/mgjules/harvit/harvester"
+	"github.com/mgjules/harvit/json"
 	"github.com/mgjules/harvit/logger"
 	"github.com/mgjules/harvit/plan"
 	"github.com/mgjules/harvit/transformer"
@@ -61,14 +62,22 @@ var harvest = &cli.Command{
 
 		logger.Log.Debugw("conforming done", "conformed", conformed)
 
+		var transformed any = conformed
 		if plan.Transformer != "" {
-			transformed, err := transformer.Transform(c.Context, plan.Transformer, plan.Fields, conformed)
+			transformed, err = transformer.Transform(c.Context, plan.Transformer, plan.Fields, conformed)
 			if err != nil {
 				return fmt.Errorf("failed to transform data: %w", err)
 			}
 
 			logger.Log.Debugw("transformation done", "transformed", transformed)
 		}
+
+		marshaled, err := json.Marshal(transformed)
+		if err != nil {
+			return fmt.Errorf("failed to marshal transformed data: %w", err)
+		}
+
+		fmt.Println(string(marshaled))
 
 		return nil
 	},
