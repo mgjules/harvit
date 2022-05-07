@@ -26,7 +26,7 @@ Harvit harvests data from different sources (e.g websites, APIs), converts and t
 - [Go 1.18+](https://golang.org/doc/install)
 - [Mage](https://github.com/magefile/mage) - replacement for Makefile in Go.
 - [Golangci-lint](https://github.com/golangci/golangci-lint) - Fast Go linters runner.
-- [Ginkgo](https://github.com/onsi/ginkgo) - Esspressive testing framework.
+- [Ginkgo](https://github.com/onsi/ginkgo) - Expressive testing framework.
 - [Docker](https://www.docker.com) - Containerization.
 
 ## Usage
