@@ -31,7 +31,7 @@ Harvit harvests data from different sources (e.g websites, APIs), converts and t
 
 ## Usage
 
-Harvit uses a `plan` in yaml format (see example below) to define the data source, fields and the transformer to be performed.
+Harvit uses a `plan` in yaml format (see [example](#planyml)) to define the data source, fields and the transformer to be performed.
 
 ```shell
 $ ./harvit harvest [command options] plan
