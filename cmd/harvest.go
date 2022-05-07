@@ -62,7 +62,10 @@ var harvest = &cli.Command{
 		logger.Log.Debugw("conforming done", "conformed", conformed)
 
 		if plan.Transformer != "" {
-			transformed := transformer.Transform(c.Context, plan.Transformer, plan.Fields, conformed)
+			transformed, err := transformer.Transform(c.Context, plan.Transformer, plan.Fields, conformed)
+			if err != nil {
+				return fmt.Errorf("failed to transform data: %w", err)
+			}
 
 			logger.Log.Debugw("transformation done", "transformed", transformed)
 		}
