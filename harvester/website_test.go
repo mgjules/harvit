@@ -22,9 +22,7 @@ var _ = Describe("Website", func() {
 	Expect(err).To(BeNil())
 
 	ts := httptest.NewServer(writeHTML(string(b)))
-	AfterEach(func() {
-		ts.Close()
-	})
+	AfterEach(ts.Close)
 
 	p := plan.Plan{
 		Source: ts.URL,
