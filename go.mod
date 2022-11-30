@@ -11,7 +11,7 @@ require (
 	github.com/golang-module/carbon/v2 v2.1.5
 	github.com/imdario/mergo v0.3.12
 	github.com/json-iterator/go v1.1.12
-	github.com/magefile/mage v1.13.0
+	github.com/magefile/mage v1.14.0
 	github.com/onsi/ginkgo/v2 v2.1.4
 	github.com/onsi/gomega v1.19.0
 	github.com/samber/lo v1.20.0
