@@ -7,7 +7,7 @@ require (
 	github.com/chromedp/chromedp v0.8.1
 	github.com/dop251/goja v0.0.0-20220501172647-e1eca0b61fa9
 	github.com/go-playground/mold/v4 v4.2.0
-	github.com/go-playground/validator/v10 v10.11.0
+	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golang-module/carbon/v2 v2.1.5
 	github.com/imdario/mergo v0.3.12
 	github.com/json-iterator/go v1.1.12
