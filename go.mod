@@ -16,7 +16,7 @@ require (
 	github.com/onsi/gomega v1.24.1
 	github.com/samber/lo v1.37.0
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.1.17
-	github.com/urfave/cli/v2 v2.5.0
+	github.com/urfave/cli/v2 v2.23.7
 	go.uber.org/zap v1.24.0
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -24,7 +24,7 @@ require (
 require (
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/chromedp/sysutil v1.0.0 // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/dlclark/regexp2 v1.4.1-0.20201116162257-a2a8dda75c91 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
@@ -44,6 +44,7 @@ require (
 	github.com/segmentio/go-camelcase v0.0.0-20160726192923-7085f1e3c734 // indirect
 	github.com/segmentio/go-snakecase v1.2.0 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelutil v0.1.17 // indirect
+	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.opentelemetry.io/otel v1.10.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.6.3 // indirect
 	go.opentelemetry.io/otel/trace v1.10.0 // indirect
