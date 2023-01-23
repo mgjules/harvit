@@ -16,7 +16,7 @@ require (
 	github.com/onsi/gomega v1.24.1
 	github.com/samber/lo v1.37.0
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.1.17
-	github.com/urfave/cli/v2 v2.23.7
+	github.com/urfave/cli/v2 v2.24.1
 	go.uber.org/zap v1.24.0
 	gopkg.in/yaml.v2 v2.4.0
 )
