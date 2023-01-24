@@ -3,8 +3,8 @@ module github.com/mgjules/harvit
 go 1.18
 
 require (
-	github.com/chromedp/cdproto v0.0.0-20220428002153-285dfb42699c
-	github.com/chromedp/chromedp v0.8.1
+	github.com/chromedp/cdproto v0.0.0-20230109101555-6b041c6303cc
+	github.com/chromedp/chromedp v0.8.7
 	github.com/dop251/goja v0.0.0-20220501172647-e1eca0b61fa9
 	github.com/go-playground/mold/v4 v4.2.0
 	github.com/go-playground/validator/v10 v10.11.1
