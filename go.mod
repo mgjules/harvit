@@ -3,8 +3,8 @@ module github.com/mgjules/harvit
 go 1.18
 
 require (
-	github.com/chromedp/cdproto v0.0.0-20230109101555-6b041c6303cc
-	github.com/chromedp/chromedp v0.8.7
+	github.com/chromedp/cdproto v0.0.0-20230220211738-2b1ec77315c9
+	github.com/chromedp/chromedp v0.9.1
 	github.com/dop251/goja v0.0.0-20220501172647-e1eca0b61fa9
 	github.com/go-playground/mold/v4 v4.3.0
 	github.com/go-playground/validator/v10 v10.11.2
@@ -54,7 +54,7 @@ require (
 	golang.org/x/crypto v0.5.0 // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
