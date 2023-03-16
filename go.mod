@@ -12,8 +12,8 @@ require (
 	github.com/imdario/mergo v0.3.13
 	github.com/json-iterator/go v1.1.12
 	github.com/magefile/mage v1.14.0
-	github.com/onsi/ginkgo/v2 v2.8.4
-	github.com/onsi/gomega v1.27.1
+	github.com/onsi/ginkgo/v2 v2.9.0
+	github.com/onsi/gomega v1.27.3
 	github.com/samber/lo v1.37.0
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.1.21
 	github.com/urfave/cli/v2 v2.25.0
