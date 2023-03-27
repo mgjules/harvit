@@ -9,7 +9,7 @@ require (
 	github.com/go-playground/mold/v4 v4.3.0
 	github.com/go-playground/validator/v10 v10.11.2
 	github.com/golang-module/carbon/v2 v2.2.3
-	github.com/imdario/mergo v0.3.13
+	github.com/imdario/mergo v0.3.15
 	github.com/json-iterator/go v1.1.12
 	github.com/magefile/mage v1.14.0
 	github.com/onsi/ginkgo/v2 v2.9.0
