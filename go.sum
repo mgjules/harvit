@@ -95,8 +95,8 @@ github.com/rogpeppe/go-internal v1.6.1/go.mod h1:xXDCJY+GAPziupqXw64V24skbSoqbTE
 github.com/russross/blackfriday/v2 v2.1.0 h1:JIOH55/0cWyOuilr9/qlrm0BSXldqnqwMsf35Ld67mk=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/rwtodd/Go.Sed v0.0.0-20210816025313-55464686f9ef/go.mod h1:8AEUvGVi2uQ5b24BIhcr0GCcpd/RNAFWaN2CJFrWIIQ=
-github.com/samber/lo v1.37.0 h1:XjVcB8g6tgUp8rsPsJ2CvhClfImrpL04YpQHXeHPhRw=
-github.com/samber/lo v1.37.0/go.mod h1:9vaz2O4o8oOnK23pd2TrXufcbdbJIa3b6cstBWKpopA=
+github.com/samber/lo v1.38.1 h1:j2XEAqXKb09Am4ebOg31SpvzUTTs6EN3VfgeLUhPdXM=
+github.com/samber/lo v1.38.1/go.mod h1:+m/ZKRl6ClXCE2Lgf3MsQlWfh4bn1bz6CXEOxnEXnEA=
 github.com/segmentio/go-camelcase v0.0.0-20160726192923-7085f1e3c734 h1:Cpx2WLIv6fuPvaJAHNhYOgYzk/8RcJXu/8+mOrxf2KM=
 github.com/segmentio/go-camelcase v0.0.0-20160726192923-7085f1e3c734/go.mod h1:hqVOMAwu+ekffC3Tvq5N1ljnXRrFKcaSjbCmQ8JgYaI=
 github.com/segmentio/go-snakecase v1.2.0 h1:4cTmEjPGi03WmyAHWBjX53viTpBkn/z+4DO++fqYvpw=

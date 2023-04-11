@@ -14,7 +14,7 @@ require (
 	github.com/magefile/mage v1.14.0
 	github.com/onsi/ginkgo/v2 v2.9.0
 	github.com/onsi/gomega v1.27.3
-	github.com/samber/lo v1.37.0
+	github.com/samber/lo v1.38.1
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.1.21
 	github.com/urfave/cli/v2 v2.25.1
 	go.uber.org/zap v1.24.0
