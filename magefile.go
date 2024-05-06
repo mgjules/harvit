@@ -5,7 +5,7 @@ package main
 import (
 	"os"
 
-	"github.com/imdario/mergo"
+	"dario.cat/mergo"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
